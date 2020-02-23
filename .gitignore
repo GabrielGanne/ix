@@ -1,0 +1,27 @@
+# ignore build-directory if any
+/build*
+
+# C generated objects
+*.o
+*.so
+
+# check generated objects
+*.log
+*.trs
+
+# external tool files
+/cscope.*
+tags
+*.unc-backup~
+*.unc-backup.md5~
+*.uncrustify
+*.gcno
+
+# usual tmp files
+*.swp
+
+# No core files
+**/core
+
+# nfs tmp files
+*.nfs*

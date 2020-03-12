@@ -188,11 +188,21 @@ void sht_destroy(struct sht * h)
     }
 }
 
-struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free)
+struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
+        hash_fn _hash)
 {
     int i;
     struct line * lines;
     struct sht * h;
+
+    if (_alloc == NULL)
+        _alloc = malloc;
+
+    if (_free == NULL)
+        _free = free;
+
+    if (_hash == NULL)
+        _hash = oat_hash;
 
     h = _alloc(sizeof(*h));
     if (h == NULL)
@@ -215,7 +225,7 @@ struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free)
         .gc_num = 10,
         .do_double_size = 1,
         .max_line_depth = isqrt(size),
-        .hash = oat_hash,
+        .hash = _hash,
         .lines = lines,
         .size = size,
         .alloc = _alloc,

@@ -58,6 +58,7 @@ sht = shared_library('sht',
 all_tests_sources = []
 if get_option('tests')
     all_tests_sources += files(
+        'test/sht-perf-test.c',
         'test/sht-smoketest.c',
         'test/sht-unittest.c',
     )
@@ -84,6 +85,14 @@ if get_option('tests')
     test('sht-smoketest',
         sht_smoketest,
         suite : 'smoke-tests',
+    )
+
+    # pref test
+    executable('sht-perf-test',
+        files('test/sht-perf-test.c'),
+        include_directories : include_directories('src', 'test'),
+            link_with : sht,
+            dependencies : [libthread],
     )
 endif # tests
 

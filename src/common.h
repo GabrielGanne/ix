@@ -36,8 +36,6 @@
 #define VOIDPTR(ptr) \
     (void *)(uintptr_t)(ptr)
 
-/* common function typedefs */
-typedef uint32_t (* hash_fn) (void * data, size_t datalen);
 
 /* "one-at-a-time" generic hash function used by jenkins
  * used as default function hash if none provided */

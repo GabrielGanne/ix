@@ -3,14 +3,16 @@
 
 typedef void * (* alloc_fn)(size_t size);
 typedef void (* free_fn)(void * ptr);
+typedef uint32_t (* hash_fn) (void * data, size_t datalen);
 
 /* simple table of linked-lists, no double-size */
 struct sht;
 
-struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free);
+struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
+        hash_fn _hash);
 void sht_destroy(struct sht * h);
 
-#define sht_create(size) sht_create_custom(size, malloc, free)
+#define sht_create(size) sht_create_custom(size, NULL, NULL, NULL)
 
 int sht_insert(struct sht * h, void * key, size_t keylen, void * value);
 void * sht_lookup(struct sht * h, void * key, size_t keylen);

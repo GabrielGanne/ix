@@ -1,2 +1,6 @@
 option('tests', type: 'boolean', value: true,
         description: 'build unit tests')
+option('lg2-cacheline-size', type: 'integer', value: 6,
+       description: 'log2 cache line size')
+option('lg2-page-size', type: 'integer', value: 12,
+       description: 'log2 page size')

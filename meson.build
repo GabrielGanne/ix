@@ -18,11 +18,15 @@ flags = [
     '-Wstrict-prototypes',
     '-Wmissing-prototypes',
     '-Wno-padded',
-
-    '-DCONFIG_LOG2_CPU_CACHELINE_SIZE=6',
-    '-DCONFIG_LOG2_CPU_PAGE_SIZE=12',
 ]
 add_project_arguments(cc.get_supported_arguments(flags), language : 'c')
+
+# write config file
+config = configuration_data()
+config.set('CONFIG_LOG2_CPU_CACHELINE_SIZE',get_option('lg2-cacheline-size'))
+config.set('CONFIG_LOG2_CPU_PAGE_SIZE', get_option('lg2-page-size'))
+configure_file(output : 'config.h', configuration : config)
+add_project_arguments('-include', 'config.h', language : 'c')
 
 libthread = dependency('threads')
 

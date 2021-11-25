@@ -191,6 +191,9 @@ void sht_destroy(struct sht * h)
     }
 }
 
+
+__attribute__((malloc))
+__attribute__((alloc_size(1)))
 struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
         hash_fn _hash)
 {

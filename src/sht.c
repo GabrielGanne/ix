@@ -159,13 +159,16 @@ line_insert(struct line * line, struct node * node)
 
 /* expects line to be locked */
 static inline
-void * line_lookup(struct line * line, void * key, size_t keylen)
+void * line_lookup(struct line * line, void * key, size_t keylen, uint32_t hash)
 {
     struct node * node;
 
     for (node = line->nodes ; node != NULL ; node = node->next) {
-        if (node->keylen == keylen
-           && memcmp(node->key, key, keylen) == 0) {
+        if (node->hash != hash)
+            continue;
+
+        if (likely(node->keylen == keylen
+                  && memcmp(node->key, key, keylen) == 0)) {
             return node->data;
         }
     }
@@ -450,13 +453,13 @@ void * sht_lookup(struct sht * h, void * key, size_t keylen)
     line = &h->lines[hash % h->size];
 
     pthread_spin_lock(&line->lock);
-    ptr = line_lookup(line, key, keylen);
+    ptr = line_lookup(line, key, keylen, hash);
     pthread_spin_unlock(&line->lock);
 
     if (unlikely(h->old != NULL) && ptr == NULL) {
         line = &h->old->lines[hash % h->old->size];
         pthread_spin_lock(&line->lock);
-        ptr = line_lookup(line, key, keylen);
+        ptr = line_lookup(line, key, keylen, hash);
         pthread_spin_unlock(&line->lock);
     }
 
@@ -500,7 +503,7 @@ void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
     if (unlikely(ptr == NULL && h->old != NULL)) {
         line = &h->old->lines[hash % h->old->size];
         pthread_spin_lock(&line->lock);
-        ptr = line_lookup(line, key, keylen);
+        ptr = line_lookup(line, key, keylen, hash);
         pthread_spin_unlock(&line->lock);
     }
 
@@ -511,7 +514,7 @@ void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
     line = &h->lines[hash % h->size];
     pthread_spin_lock(&line->lock);
 lookup_insert:
-    ptr = line_lookup(line, key, keylen);
+    ptr = line_lookup(line, key, keylen, hash);
 
     if (ptr != NULL) {
         pthread_spin_unlock(&line->lock);
@@ -579,8 +582,9 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
 
     pthread_spin_lock(&line->lock);
     for (node = line->nodes ; node != NULL ; node = node->next) {
-        if (node->keylen == keylen
-           && memcmp(node->key, key, keylen) == 0) {
+        if (node->hash == hash
+           && likely(node->keylen == keylen
+                    && memcmp(node->key, key, keylen) == 0)) {
             if (prev == NULL)
                 line->nodes = node->next;
             else
@@ -604,8 +608,9 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
 
         pthread_spin_lock(&line->lock);
         for (node = line->nodes ; node != NULL ; node = node->next) {
-            if (node->keylen == keylen
-               && memcmp(node->key, key, keylen) == 0) {
+            if (node->hash == hash
+               && likely(node->keylen == keylen
+                        && memcmp(node->key, key, keylen) == 0)) {
                 if (prev == NULL)
                     line->nodes = node->next;
                 else

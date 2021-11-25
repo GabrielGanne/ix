@@ -325,6 +325,7 @@ void sht_insert_node(struct sht * h, struct line * line, struct node * node)
         atomic_incr(h->cpt_collisions);
 }
 
+__attribute__((nonnull(1)))
 int sht_insert(struct sht * h, void * key, size_t keylen, void * value)
 {
     struct node * node;
@@ -417,6 +418,7 @@ int _sht_gc(struct sht * h, int max_gc_num)
     return n;
 }
 
+__attribute__((nonnull(1)))
 int sht_gc(struct sht * h, int max_gc_num)
 {
     int rv;
@@ -428,6 +430,7 @@ int sht_gc(struct sht * h, int max_gc_num)
     return rv;
 }
 
+__attribute__((nonnull(1)))
 void * sht_lookup(struct sht * h, void * key, size_t keylen)
 {
     void * ptr;
@@ -462,6 +465,7 @@ void * sht_lookup(struct sht * h, void * key, size_t keylen)
     return ptr;
 }
 
+__attribute__((nonnull(1)))
 void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
         void * value)
 {
@@ -554,12 +558,16 @@ exit:
     return ptr;
 }
 
+__attribute__((nonnull(1)))
 int sht_remove(struct sht * h, void * key, size_t keylen)
 {
     int rv;
     uint32_t hash;
     struct line * line;
     struct node * node, * prev;
+
+    if (unlikely(key == NULL || keylen == 0))
+        return -1;
 
     sht_ref(h);
     _sht_gc(h, h->gc_num);
@@ -621,6 +629,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
     return rv;
 }
 
+__attribute__((nonnull(1)))
 void sht_dump_stats(struct sht const * h)
 {
     int i;

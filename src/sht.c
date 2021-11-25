@@ -23,7 +23,7 @@ struct node {
 };
 
 struct line {
-    pthread_spinlock_t lock;
+    pthread_rwlock_t lock;
     int len;
     struct node * nodes;
 };
@@ -126,7 +126,7 @@ static void
 line_init(struct line * line)
 {
     memset(line, 0, sizeof(*line));
-    pthread_spin_init(&line->lock, PTHREAD_PROCESS_PRIVATE);
+    pthread_rwlock_init(&line->lock, NULL);
 }
 
 static void
@@ -136,7 +136,7 @@ line_deinit(free_fn _free, struct line * line)
 
     assert(line != NULL);
 
-    pthread_spin_lock(&line->lock);
+    pthread_rwlock_wrlock(&line->lock);
     b = line->nodes;
     while (b != NULL) {
         tmp = b->next;
@@ -144,8 +144,8 @@ line_deinit(free_fn _free, struct line * line)
         b = tmp;
     }
 
-    pthread_spin_unlock(&line->lock);
-    pthread_spin_destroy(&line->lock);
+    pthread_rwlock_unlock(&line->lock);
+    pthread_rwlock_destroy(&line->lock);
 }
 
 static void
@@ -322,10 +322,10 @@ void sht_insert_node(struct sht * h, struct line * line, struct node * node)
 
     atomic_incr(h->cpt_insert);
 
-    pthread_spin_lock(&line->lock);
+    pthread_rwlock_wrlock(&line->lock);
     bak = line->nodes;
     line_insert(line, node);
-    pthread_spin_unlock(&line->lock);
+    pthread_rwlock_unlock(&line->lock);
 
     if (bak != NULL)
         atomic_incr(h->cpt_collisions);
@@ -373,7 +373,7 @@ int _sht_gc(struct sht * h, int max_gc_num)
         return 0;
 
     old_line = &h->old->lines[h->old->gc_index];
-    pthread_spin_lock(&old_line->lock);
+    pthread_rwlock_wrlock(&old_line->lock);
     for (i = 0 ; i < max_gc_num ; i++) {
         node = old_line->nodes;
         if (node == NULL) {
@@ -381,9 +381,9 @@ int _sht_gc(struct sht * h, int max_gc_num)
             if (h->old->gc_index >= h->old->size)
                 break;
 
-            pthread_spin_unlock(&old_line->lock);
+            pthread_rwlock_unlock(&old_line->lock);
             old_line = &h->old->lines[h->old->gc_index];
-            pthread_spin_lock(&old_line->lock);
+            pthread_rwlock_wrlock(&old_line->lock);
             continue;
         }
 
@@ -398,7 +398,7 @@ int _sht_gc(struct sht * h, int max_gc_num)
 
     n = i;
 
-    pthread_spin_unlock(&old_line->lock);
+    pthread_rwlock_unlock(&old_line->lock);
 
     if (h->old->gc_index >= h->old->size) {
         /* put on old any new hashtable operation */
@@ -455,15 +455,15 @@ void * sht_lookup(struct sht * h, void * key, size_t keylen)
 
     line = &h->lines[hash % h->size];
 
-    pthread_spin_lock(&line->lock);
+    pthread_rwlock_rdlock(&line->lock);
     ptr = line_lookup(line, key, keylen, hash);
-    pthread_spin_unlock(&line->lock);
+    pthread_rwlock_unlock(&line->lock);
 
     if (unlikely(h->old != NULL) && ptr == NULL) {
         line = &h->old->lines[hash % h->old->size];
-        pthread_spin_lock(&line->lock);
+        pthread_rwlock_rdlock(&line->lock);
         ptr = line_lookup(line, key, keylen, hash);
-        pthread_spin_unlock(&line->lock);
+        pthread_rwlock_unlock(&line->lock);
     }
 
     atomic_decr(h->ref);
@@ -505,9 +505,9 @@ void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
     /* handle transition old table */
     if (unlikely(ptr == NULL && h->old != NULL)) {
         line = &h->old->lines[hash % h->old->size];
-        pthread_spin_lock(&line->lock);
+        pthread_rwlock_rdlock(&line->lock);
         ptr = line_lookup(line, key, keylen, hash);
-        pthread_spin_unlock(&line->lock);
+        pthread_rwlock_unlock(&line->lock);
     }
 
     if (ptr != NULL)
@@ -515,12 +515,12 @@ void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
 
     /* lookup in the current table */
     line = &h->lines[hash % h->size];
-    pthread_spin_lock(&line->lock);
+    pthread_rwlock_wrlock(&line->lock);
 lookup_insert:
     ptr = line_lookup(line, key, keylen, hash);
 
     if (ptr != NULL) {
-        pthread_spin_unlock(&line->lock);
+        pthread_rwlock_unlock(&line->lock);
         if (new_node != NULL)
             node_destroy(h->free, new_node);
 
@@ -534,13 +534,13 @@ lookup_insert:
      * The table cannot have double-sized */
     if (once) {
         bak = line->nodes;
-        pthread_spin_unlock(&line->lock);
+        pthread_rwlock_unlock(&line->lock);
         new_node = node_create(h, key, keylen, value);
         if (unlikely(new_node == NULL))
             goto exit;
 
         once = 0;
-        pthread_spin_lock(&line->lock);
+        pthread_rwlock_wrlock(&line->lock);
 
         if (unlikely(line->nodes != bak)) {
             bak = line->nodes;
@@ -555,7 +555,7 @@ lookup_insert:
     if (bak != NULL)
         atomic_incr(h->cpt_collisions);
 
-    pthread_spin_unlock(&line->lock);
+    pthread_rwlock_unlock(&line->lock);
 
     ptr = new_node->data;
 
@@ -583,7 +583,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
     line = &h->lines[hash % h->size];
     prev = NULL;
 
-    pthread_spin_lock(&line->lock);
+    pthread_rwlock_wrlock(&line->lock);
     for (node = line->nodes ; node != NULL ; node = node->next) {
         if (node->hash == hash
            && likely(node->keylen == keylen
@@ -603,13 +603,13 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
         prev = node;
     }
 
-    pthread_spin_unlock(&line->lock);
+    pthread_rwlock_unlock(&line->lock);
 
     if (unlikely(rv != 0 && h->old)) {
         line = &h->old->lines[hash % h->old->size];
         prev = NULL;
 
-        pthread_spin_lock(&line->lock);
+        pthread_rwlock_wrlock(&line->lock);
         for (node = line->nodes ; node != NULL ; node = node->next) {
             if (node->hash == hash
                && likely(node->keylen == keylen
@@ -629,7 +629,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
             prev = node;
         }
 
-        pthread_spin_unlock(&line->lock);
+        pthread_rwlock_unlock(&line->lock);
     }
 
     atomic_decr(h->ref);

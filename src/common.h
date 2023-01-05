@@ -32,6 +32,9 @@
 #define atomic_decr(value) \
     __atomic_fetch_sub(&value, 1, __ATOMIC_SEQ_CST)
 
+#define atomic_read(value) \
+    __atomic_load_n(&value, __ATOMIC_SEQ_CST)
+
 /* silence warnings about void const */
 #define VOIDPTR(ptr) \
     (void *)(uintptr_t)(ptr)

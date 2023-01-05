@@ -154,7 +154,7 @@ line_insert(struct line * line, struct node * node)
     node->next = line->nodes;
     line->nodes = node;
 
-    line->len++;
+    atomic_incr(line->len);
 }
 
 /* expects line to be locked */
@@ -347,7 +347,7 @@ int sht_insert(struct sht * h, void * key, size_t keylen, void * value)
     sht_ref(h);
     line = &h->lines[node->hash % h->size];
 
-    if (unlikely(line->len > h->max_line_depth)) {
+    if (unlikely(atomic_read(line->len) > h->max_line_depth)) {
         if (likely(sht_double_size(h) == 0))
             line = &h->lines[node->hash % h->size];
     }
@@ -497,7 +497,7 @@ void * sht_lookup_insert(struct sht * h, void * key, size_t keylen,
 
     /* deal with double-size */
     line = &h->lines[hash % h->size];
-    if (unlikely(line->len > h->max_line_depth)) {
+    if (unlikely(atomic_read(line->len) > h->max_line_depth)) {
         if (unlikely(sht_double_size(h) != 0))
             atomic_incr(h->cpt_double_size_fail);
     }
@@ -595,7 +595,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
 
             node_destroy(h->free, node);
             atomic_incr(h->cpt_remove);
-            line->len--;
+            atomic_decr(line->len);
             rv = 0;
             break;
         }
@@ -621,7 +621,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
 
                 node_destroy(h->free, node);
                 atomic_incr(h->cpt_remove);
-                line->len--;
+                atomic_decr(line->len);
                 rv = 0;
                 break;
             }

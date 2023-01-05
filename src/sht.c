@@ -555,9 +555,9 @@ lookup_insert:
     if (bak != NULL)
         atomic_incr(h->cpt_collisions);
 
+    ptr = new_node->data;
     pthread_rwlock_unlock(&line->lock);
 
-    ptr = new_node->data;
 
 exit:
     atomic_decr(h->ref);

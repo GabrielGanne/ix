@@ -448,8 +448,8 @@ void * sht_lookup(struct sht * h, void * key, size_t keylen)
 
     ptr = NULL;
     hash = h->hash(key, keylen);
-    atomic_incr(h->cpt_lookup);
     sht_ref(h);
+    atomic_incr(h->cpt_lookup);
 
     _sht_gc(h, h->gc_num);
 

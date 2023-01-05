@@ -35,8 +35,8 @@ libthread = dependency('threads')
 #
 
 # follow semantic versionning (https://semver.org)
-sht_major = '0'  # incompatible API changes
-sht_minor = '1'  # add backwards-compatible functionality
+sht_major = '1'  # incompatible API changes
+sht_minor = '0'  # add backwards-compatible functionality
 sht_patch = '0'  # backwards-compatible bug fixes
 sht_version = sht_major + '.' + sht_minor + '.' + sht_patch
 

@@ -5,7 +5,7 @@ typedef void * (* alloc_fn)(size_t size);
 typedef void (* free_fn)(void * ptr);
 typedef uint32_t (* hash_fn) (void * data, size_t datalen);
 
-/* simple table of linked-lists, no double-size */
+/* simple table of linked-lists */
 struct sht;
 
 struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,

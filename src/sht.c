@@ -277,7 +277,7 @@ sht_double_size(struct sht * h)
     if (exit)
         return 0;
 
-    /* too many doubel sizes too fast */
+    /* too many double sizes too fast */
     if (unlikely(h->old != NULL))
         return -1;
 

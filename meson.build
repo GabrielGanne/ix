@@ -34,7 +34,7 @@ libthread = dependency('threads')
 # the simple hashtable library (sht)
 #
 
-# follow semantic versionning (https://semver.org)
+# follow semantic versioning (https://semver.org)
 sht_major = '1'  # incompatible API changes
 sht_minor = '0'  # add backwards-compatible functionality
 sht_patch = '0'  # backwards-compatible bug fixes

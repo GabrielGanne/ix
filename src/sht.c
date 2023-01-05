@@ -39,7 +39,7 @@ struct sht {
     struct line * lines;
     int size;
 
-    volatile int ref;
+    int ref;
     pthread_spinlock_t global_lock;
 
     alloc_fn alloc;
@@ -242,6 +242,10 @@ struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
     return h;
 }
 
+/*
+ * The global spinlock is here to block new hastable operation
+ * during double-size.
+ */
 static ALWAYS_INLINE
 void sht_ref(struct sht * h)
 {
@@ -296,7 +300,7 @@ sht_double_size(struct sht * h)
     pthread_spin_lock(&h->global_lock);
 
     /* wait for any (other) current hashtable transaction to finish */
-    while (h->ref > 1)
+    while (atomic_read(h->ref) > 1)
         ;
 
     *old = *h;
@@ -405,7 +409,7 @@ int _sht_gc(struct sht * h, int max_gc_num)
         pthread_spin_lock(&h->global_lock);
 
         /* wait for any (other) current hashtable transaction to finish */
-        while (h->ref > 1)
+        while (atomic_read(h->ref) > 1)
             ;
 
         old = h->old;

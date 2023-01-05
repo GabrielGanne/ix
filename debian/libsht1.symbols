@@ -1,0 +1,10 @@
+libsht.so.1 libsht1 #MINVER#
+* Build-Depends-Package: libsht-dev
+ sht_create_custom@Base 1.0.0
+ sht_destroy@Base 1.0.0
+ sht_dump_stats@Base 1.0.0
+ sht_gc@Base 1.0.0
+ sht_insert@Base 1.0.0
+ sht_lookup@Base 1.0.0
+ sht_lookup_insert@Base 1.0.0
+ sht_remove@Base 1.0.0

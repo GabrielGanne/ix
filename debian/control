@@ -1,0 +1,32 @@
+Source: ix
+Section: libs
+Priority: optional
+Maintainer: Gabriel Ganne <gabriel.ganne@gmail.com>
+Build-Depends: debhelper-compat (= 13),
+ meson
+Standards-Version: 4.5.1
+Homepage: https://github.com/GabrielGanne/ix
+Vcs-Browser: https://github.com/GabrielGanne/ix
+Vcs-Git: https://github.com/GabrielGanne/ix.git
+Rules-Requires-Root: no
+
+Package: libsht1
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: simple hashtable library (shared lib)
+ simple separate chaining thread-safe hashtable
+ .
+ This package contains the shared library
+
+Package: libsht-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libsht1 (= ${binary:Version}), ${misc:Depends}
+Description: simple hashtable library (Development files)
+ simple separate chaining thread-safe hashtable
+ .
+ This package contains the files needed to compile and link programs which
+ use libsht.

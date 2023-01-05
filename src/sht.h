@@ -1,6 +1,9 @@
 #ifndef SIMPLE_HASHTABLE_HEADER
 #define SIMPLE_HASHTABLE_HEADER
 
+#include <stddef.h>
+#include <stdint.h>
+
 typedef void * (* alloc_fn)(size_t size);
 typedef void (* free_fn)(void * ptr);
 typedef uint32_t (* hash_fn) (void * data, size_t datalen);

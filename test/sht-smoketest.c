@@ -30,11 +30,6 @@ struct test_entry {
 };
 static struct test_entry ** test_values;
 
-static inline int random_int(int max)
-{
-    return rand() % max;
-}
-
 static inline void * random_ptr(void)
 {
     return (void*) (uintptr_t) rand();

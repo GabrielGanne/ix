@@ -54,7 +54,7 @@ struct sht {
     uint64_t cpt_double_size_fail;
 };
 
-/* integer sqare root */
+/* integer square root */
 #define ISQRRT_NEXT(n, i)  (((n) + (i) / (n)) >> 1)
 
 static inline uint32_t
@@ -243,7 +243,7 @@ struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
 }
 
 /*
- * The global spinlock is here to block new hastable operation
+ * The global spinlock is here to block new hashtable operation
  * during double-size.
  */
 static ALWAYS_INLINE

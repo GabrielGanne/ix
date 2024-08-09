@@ -91,7 +91,7 @@ if get_option('tests')
         suite : 'smoke-tests',
     )
 
-    # pref test
+    # perf test
     executable('sht-perf-test',
         files('test/sht-perf-test.c'),
         include_directories : include_directories('src', 'test'),

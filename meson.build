@@ -107,6 +107,32 @@ timerwheel = shared_library('timerwheel',
 )
 
 #
+# Pipeline
+#
+
+# follow semantic versioning (https://semver.org)
+pipe_major = '1'  # incompatible API changes
+pipe_minor = '0'  # add backwards-compatible functionality
+pipe_patch = '0'  # backwards-compatible bug fixes
+pipe_version = pipe_major + '.' + pipe_minor + '.' + pipe_patch
+
+pipe_sources = files(
+        'src/common.h',
+        'src/pipeline.c',
+        'src/pipeline.h',
+)
+install_headers('src/pipeline.h')
+
+libyaml = cc.find_library('yaml', required : true)
+pipeline = shared_library('pipeline',
+        pipe_sources,
+        version : pipe_version,
+        install : true,
+        include_directories : configuration_inc,
+        dependencies : [libyaml],
+)
+
+#
 # TESTS
 #
 
@@ -214,6 +240,7 @@ if uncrustify.found()
             sht_sources,
             pq_sources,
             tw_sources,
+            pipe_sources,
             all_tests_sources,
         ],
     )
@@ -226,6 +253,7 @@ if uncrustify.found()
             sht_sources,
             pq_sources,
             tw_sources,
+            pipe_sources,
             all_tests_sources,
         ],
     )
@@ -239,6 +267,7 @@ if codespell.found()
             sht_sources,
             pq_sources,
             tw_sources,
+            pipe_sources,
             all_tests_sources,
         ]
     )

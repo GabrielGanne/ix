@@ -6,7 +6,7 @@ project('ix', 'c',
             'c_std=c99',
         ],
         license : 'MIT',
-        meson_version: '>= 0.49',
+        meson_version: '>= 0.56',
 )
 
 
@@ -110,7 +110,7 @@ if uncrustify.found()
         command : [
             uncrustify,
             '-l', 'c',
-            '-c', join_paths(meson.source_root(), 'devtools', 'uncrustify.cfg'),
+            '-c', join_paths(meson.project_source_root(), 'devtools', 'uncrustify.cfg'),
             '--check',
             sht_sources,
             all_tests_sources,
@@ -120,7 +120,7 @@ if uncrustify.found()
         command : [
             uncrustify,
             '-l', 'c',
-            '-c', join_paths(meson.source_root(), 'devtools', 'uncrustify.cfg'),
+            '-c', join_paths(meson.project_source_root(), 'devtools', 'uncrustify.cfg'),
             '--replace',
             sht_sources,
             all_tests_sources,

@@ -35,15 +35,15 @@ struct sht {
     int gc_num;
     int max_line_depth;
 
-    hash_fn hash;
+    sht_hash_fn hash;
     struct line * lines;
     int size;
 
     int ref;
     pthread_spinlock_t global_lock;
 
-    alloc_fn alloc;
-    free_fn free;
+    sht_alloc_fn alloc;
+    sht_free_fn free;
 
     /* stats */
     uint64_t cpt_lookup;
@@ -114,7 +114,7 @@ node_create(struct sht * h, void * key, size_t keylen, void * data)
 }
 
 static void
-node_destroy(free_fn _free, struct node * b)
+node_destroy(sht_free_fn _free, struct node * b)
 {
     if (b != NULL) {
         _free(b->key);
@@ -130,7 +130,7 @@ line_init(struct line * line)
 }
 
 static void
-line_deinit(free_fn _free, struct line * line)
+line_deinit(sht_free_fn _free, struct line * line)
 {
     struct node * b, * tmp;
 
@@ -194,8 +194,8 @@ void sht_destroy(struct sht * h)
 
 __attribute__((malloc))
 __attribute__((alloc_size(1)))
-struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
-        hash_fn _hash)
+struct sht * sht_create_custom(int size, sht_alloc_fn _alloc, sht_free_fn _free,
+        sht_hash_fn _hash)
 {
     int i;
     struct line * lines;

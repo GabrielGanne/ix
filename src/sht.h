@@ -4,15 +4,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void * (* alloc_fn)(size_t size);
-typedef void (* free_fn)(void * ptr);
-typedef uint32_t (* hash_fn) (void * data, size_t datalen);
+typedef void * (* sht_alloc_fn)(size_t size);
+typedef void (* sht_free_fn)(void * ptr);
+typedef uint32_t (* sht_hash_fn) (void * data, size_t datalen);
 
 /* simple table of linked-lists */
 struct sht;
 
-struct sht * sht_create_custom(int size, alloc_fn _alloc, free_fn _free,
-        hash_fn _hash);
+struct sht * sht_create_custom(int size, sht_alloc_fn _alloc, sht_free_fn _free,
+        sht_hash_fn _hash);
 void sht_destroy(struct sht * h);
 
 #define sht_create(size) sht_create_custom(size, NULL, NULL, NULL)

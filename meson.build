@@ -56,12 +56,40 @@ sht = shared_library('sht',
 )
 
 #
+# priority queue (2-ary heap)
+#
+
+
+# follow semantic versioning (https://semver.org)
+pq_major = '1'  # incompatible API changes
+pq_minor = '0'  # add backwards-compatible functionality
+pq_patch = '0'  # backwards-compatible bug fixes
+pq_version = pq_major + '.' + pq_minor + '.' + pq_patch
+
+pq_sources = files(
+        'src/common.h',
+        'src/pqueue.c',
+        'src/pqueue.h',
+)
+install_headers('src/pqueue.h')
+
+pqueue = shared_library('pqueue',
+        pq_sources,
+        version : pq_version,
+        install : true,
+        include_directories : configuration_inc,
+        dependencies : [libthread],
+)
+
+#
 # TESTS
 #
 
 all_tests_sources = []
 if get_option('tests')
     all_tests_sources += files(
+        'test/pqueue-smoketest.c',
+        'test/pqueue-unittest.c',
         'test/sht-perf-test.c',
         'test/sht-smoketest.c',
         'test/sht-unittest.c',
@@ -79,6 +107,17 @@ if get_option('tests')
         suite : 'unit-tests',
     )
 
+    pq_unittest = executable('pqueue-unittest',
+            files('test/pqueue-unittest.c'),
+            include_directories : include_directories('src', 'test'),
+            link_with : pqueue,
+            dependencies : [libthread],
+    )
+    test('pqueue-unittest',
+        pq_unittest,
+        suite : 'unit-tests',
+    )
+
     # smoke tests
     sht_smoketest = executable('sht-smoketest',
             files('test/sht-smoketest.c'),
@@ -89,6 +128,17 @@ if get_option('tests')
     test('sht-smoketest',
         sht_smoketest,
         suite : 'smoke-tests',
+    )
+
+    pq_smoketest = executable('pqueue-smoketest',
+            files('test/pqueue-smoketest.c'),
+            include_directories : include_directories('src', 'test'),
+            link_with : pqueue,
+            dependencies : [libthread],
+    )
+    test('pqueue-smoketest',
+        pq_smoketest,
+        suite : 'unit-tests',
     )
 
     # perf test
@@ -113,6 +163,7 @@ if uncrustify.found()
             '-c', join_paths(meson.project_source_root(), 'devtools', 'uncrustify.cfg'),
             '--check',
             sht_sources,
+            pq_sources,
             all_tests_sources,
         ],
     )
@@ -123,6 +174,7 @@ if uncrustify.found()
             '-c', join_paths(meson.project_source_root(), 'devtools', 'uncrustify.cfg'),
             '--replace',
             sht_sources,
+            pq_sources,
             all_tests_sources,
         ],
     )
@@ -133,6 +185,8 @@ if codespell.found()
     run_target('spelling',
         command : [
             codespell,
+            sht_sources,
+            pq_sources,
             all_tests_sources,
         ]
     )

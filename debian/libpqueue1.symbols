@@ -1,0 +1,14 @@
+libpqueue.so.1 libpqueue1 #MINVER#
+* Build-Depends-Package: libpqueue-dev
+  pq_create_custom@Base 1.0.0
+  pq_destroy@Base 1.0.0
+  pq_dump_stats@Base 1.0.0
+  pq_expire@Base 1.0.0
+  pq_expire_all@Base 1.0.0
+  pq_insert@Base 1.0.0
+  pq_item_create@Base 1.0.0
+  pq_item_destroy@Base 1.0.0
+  pq_item_insert@Base 1.0.0
+  pq_item_remove@Base 1.0.0
+  pq_item_resched@Base 1.0.0
+  pq_item_value@Base 1.0.0

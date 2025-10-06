@@ -30,3 +30,25 @@ Description: simple hashtable library (Development files)
  .
  This package contains the files needed to compile and link programs which
  use libsht.
+
+
+Package: libpqueue1
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: priority queue library (shared lib)
+ This is a simple 2-ary heap implementation
+ .
+ This package contains the shared library
+
+Package: libpqueue-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libpqueue1 (= ${binary:Version}), ${misc:Depends}
+Description: priority queue library (Development files)
+ This is a simple 2-ary heap implementation
+ .
+ This package contains the files needed to compile and link programs which
+ use libpqueue.

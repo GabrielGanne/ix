@@ -1,6 +1,6 @@
 # ix
 
-Sandbox to play with hashtables and cache structures.
+Sandbox to play with data structures as a style exercice.
 
 ## sht
 

@@ -219,8 +219,10 @@ int pq_item_insert(struct pq * q, struct pq_item * item)
 
     if (q->size == q->capacity) {
         rv = pq_double_size(q);
-        if (unlikely(rv != 0))
+        if (unlikely(rv != 0)) {
+            pthread_mutex_unlock(&q->lock);
             return rv;
+        }
     }
 
     item->idx = q->size;
@@ -317,10 +319,8 @@ int pq_expire(struct pq * q, uint64_t now, int num)
 
     cpt = 0;
     while (cpt < num) {
-        if (q->size == 0) {
-            pthread_mutex_unlock(&q->lock);
+        if (q->size == 0)
             break;
-        }
 
         item = q->items[0];
         if (item->expire > now)

@@ -1,0 +1,6 @@
+libtimerwheel.so.1 libtimerwheel1 #MINVER#
+* Build-Depends-Package: libtimerwheel-dev
+  timer_wheel_add@Base 1.0.0
+  timer_wheel_create_custom@Base 1.0.0
+  timer_wheel_destroy@Base 1.0.0
+  timer_wheel_tick@Base 1.0.0

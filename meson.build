@@ -1,5 +1,5 @@
 project('ix', 'c',
-        version : '0.1.0',
+        version : '0.2.0',
         default_options : [
             'warning_level=3',
             'werror=true',
@@ -82,6 +82,31 @@ pqueue = shared_library('pqueue',
 )
 
 #
+# Timer wheel
+#
+
+# follow semantic versioning (https://semver.org)
+tw_major = '1'  # incompatible API changes
+tw_minor = '0'  # add backwards-compatible functionality
+tw_patch = '0'  # backwards-compatible bug fixes
+tw_version = tw_major + '.' + tw_minor + '.' + tw_patch
+
+tw_sources = files(
+        'src/common.h',
+        'src/timer-wheel.c',
+        'src/timer-wheel.h',
+)
+install_headers('src/timer-wheel.h')
+
+timerwheel = shared_library('timerwheel',
+        tw_sources,
+        version : pq_version,
+        install : true,
+        include_directories : configuration_inc,
+        dependencies : [libthread],
+)
+
+#
 # TESTS
 #
 
@@ -93,6 +118,7 @@ if get_option('tests')
         'test/sht-perf-test.c',
         'test/sht-smoketest.c',
         'test/sht-unittest.c',
+        'test/timer-wheel-unittest.c',
     )
 
     # unit tests
@@ -115,6 +141,17 @@ if get_option('tests')
     )
     test('pqueue-unittest',
         pq_unittest,
+        suite : 'unit-tests',
+    )
+
+    tw_unittest = executable('timer-wheel-unittest',
+            files('test/timer-wheel-unittest.c'),
+            include_directories : include_directories('src', 'test'),
+            link_with : timerwheel,
+            dependencies : [libthread],
+    )
+    test('timer-wheel-unittest',
+        tw_unittest,
         suite : 'unit-tests',
     )
 
@@ -141,6 +178,18 @@ if get_option('tests')
         suite : 'unit-tests',
     )
 
+    tw_smoketest = executable('timer-wheel-smoketest',
+            files('test/timer-wheel-smoketest.c'),
+            include_directories : include_directories('src', 'test'),
+            link_with : timerwheel,
+            dependencies : [libthread],
+    )
+    test('timer-wheel-smoketest',
+        tw_smoketest,
+        suite : 'unit-tests',
+    )
+
+
     # perf test
     executable('sht-perf-test',
         files('test/sht-perf-test.c'),
@@ -164,6 +213,7 @@ if uncrustify.found()
             '--check',
             sht_sources,
             pq_sources,
+            tw_sources,
             all_tests_sources,
         ],
     )
@@ -175,6 +225,7 @@ if uncrustify.found()
             '--replace',
             sht_sources,
             pq_sources,
+            tw_sources,
             all_tests_sources,
         ],
     )
@@ -187,6 +238,7 @@ if codespell.found()
             codespell,
             sht_sources,
             pq_sources,
+            tw_sources,
             all_tests_sources,
         ]
     )

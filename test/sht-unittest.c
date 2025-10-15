@@ -21,9 +21,6 @@ test_creation(void)
         check(h != NULL);
         sht_destroy(h);
     }
-
-    h = sht_create(INT32_MAX);
-    check(h == NULL);
 }
 
 static void

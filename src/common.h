@@ -27,17 +27,17 @@
 #define CACHE_ALIGNED __attribute__((aligned(CACHELINE_SIZE)))
 
 #define atomic_incr(value) \
-    __atomic_fetch_add(&value, 1, __ATOMIC_SEQ_CST)
+        __atomic_fetch_add(&value, 1, __ATOMIC_SEQ_CST)
 
 #define atomic_decr(value) \
-    __atomic_fetch_sub(&value, 1, __ATOMIC_SEQ_CST)
+        __atomic_fetch_sub(&value, 1, __ATOMIC_SEQ_CST)
 
 #define atomic_read(value) \
-    __atomic_load_n(&value, __ATOMIC_SEQ_CST)
+        __atomic_load_n(&value, __ATOMIC_SEQ_CST)
 
 /* silence warnings about void const */
 #define VOIDPTR(ptr) \
-    (void *)(uintptr_t)(ptr)
+        (void *)(uintptr_t)(ptr)
 
 
 /* "one-at-a-time" generic hash function used by jenkins

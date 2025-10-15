@@ -168,7 +168,7 @@ void * line_lookup(struct line * line, void * key, size_t keylen, uint32_t hash)
             continue;
 
         if (likely(node->keylen == keylen
-                  && memcmp(node->key, key, keylen) == 0)) {
+                && memcmp(node->key, key, keylen) == 0)) {
             return node->data;
         }
     }
@@ -590,7 +590,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
     pthread_rwlock_wrlock(&line->lock);
     for (node = line->nodes ; node != NULL ; node = node->next) {
         if (node->hash == hash
-           && likely(node->keylen == keylen
+            && likely(node->keylen == keylen
                     && memcmp(node->key, key, keylen) == 0)) {
             if (prev == NULL)
                 line->nodes = node->next;
@@ -616,7 +616,7 @@ int sht_remove(struct sht * h, void * key, size_t keylen)
         pthread_rwlock_wrlock(&line->lock);
         for (node = line->nodes ; node != NULL ; node = node->next) {
             if (node->hash == hash
-               && likely(node->keylen == keylen
+                && likely(node->keylen == keylen
                         && memcmp(node->key, key, keylen) == 0)) {
                 if (prev == NULL)
                     line->nodes = node->next;

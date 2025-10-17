@@ -9,3 +9,7 @@ Simple separate chaining thread-safe hashtable.
 ## pqueue
 
 Simple priority queue (2-ary heap)
+
+## timer-wheel
+
+Simple timer wheel library.

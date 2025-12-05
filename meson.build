@@ -100,7 +100,7 @@ install_headers('src/timer-wheel.h')
 
 timerwheel = shared_library('timerwheel',
         tw_sources,
-        version : pq_version,
+        version : tw_version,
         install : true,
         include_directories : configuration_inc,
         dependencies : [libthread],
